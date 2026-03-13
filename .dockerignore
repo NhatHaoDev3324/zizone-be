@@ -1,0 +1,40 @@
+./database/data
+./wedding-content
+
+# Loại bỏ thư mục build hoặc binary
+/bin/
+/build/
+/dist/
+server
+app
+
+# Loại bỏ module cache
+/pkg/mod
+/go/pkg
+/go.sum
+/go-build
+
+# Loại bỏ các thư mục hệ thống không cần thiết
+.DS_Store
+Thumbs.db
+
+# Loại bỏ thư mục cache của editor
+*.swp
+.vscode/
+.idea/
+*.iml
+
+# Loại bỏ các tệp log
+*.log
+logs/
+debug.log
+
+# Loại bỏ file môi trường (chỉ giữ lại .env.production nếu cần)
+.env
+.env.local
+.env.development
+.env.test
+
+# Loại bỏ thư mục Git và file không cần thiết
+.git/
+.gitignore
