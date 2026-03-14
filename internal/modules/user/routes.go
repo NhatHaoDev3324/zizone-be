@@ -1,9 +1,9 @@
 package user
 
 import (
-	"template/internal/modules/user/handler"
-	"template/internal/modules/user/repository"
-	"template/internal/modules/user/service"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/handler"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/repository"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

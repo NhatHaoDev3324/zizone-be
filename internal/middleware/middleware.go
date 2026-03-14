@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"template/pkg/utils"
+
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )

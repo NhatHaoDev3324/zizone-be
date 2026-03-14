@@ -1,8 +1,8 @@
 package router
 
 import (
-	"template/internal/middleware"
-	"template/internal/modules/user"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/middleware"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

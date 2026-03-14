@@ -3,7 +3,8 @@ package handler
 import (
 	"net/http"
 	"strconv"
-	"template/internal/modules/user/service"
+
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/service"
 
 	"github.com/gin-gonic/gin"
 )

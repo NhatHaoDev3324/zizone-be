@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"template/internal/modules/user/model"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

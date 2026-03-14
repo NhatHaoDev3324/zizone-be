@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"template/internal/modules/user/model"
 	"time"
 
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/modules/user/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

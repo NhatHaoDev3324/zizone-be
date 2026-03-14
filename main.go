@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"template/config"
-	"template/internal/router"
+
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/config"
+	"github.com/NhatHaoDev3324/go-gin-gorm-postgres-template/internal/router"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
