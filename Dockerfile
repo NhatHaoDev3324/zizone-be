@@ -11,6 +11,5 @@ FROM alpine:3.18
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=builder /app/server /usr/local/bin/server
-COPY .env /app/.env
-EXPOSE 3001
+EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/server"]

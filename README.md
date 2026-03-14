@@ -1,114 +1,125 @@
-# Go Clean Architecture Template (Gin, GORM, PostgreSQL)
+# 🚀 Go Clean Architecture Template (Gin, GORM, PostgreSQL, Redis)
 
-Đây là một bản mẫu (template) dự án Golang được xây dựng với mục tiêu: **Dễ mở rộng (Scalable), Dễ bảo trì (Maintainable) và Tái sử dụng cao (Reusable)**. Dự án sử dụng cấu trúc Modular kết hợp với Clean Architecture rút gọn.
+![Go Version](https://img.shields.io/badge/Go-1.20%2B-blue?style=for-the-badge&logo=go)
+![Gin Framework](https://img.shields.io/badge/Gin-v1.9.1-cyan?style=for-the-badge&logo=gin)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.0-blue?style=for-the-badge&logo=postgresql)
+![Redis](https://img.shields.io/badge/Redis-8.0-red?style=for-the-badge&logo=redis)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)
 
----
-
-## 🚀 Công nghệ sử dụng
-- **Framework:** [Gin Gonic](https://gin-gonic.com/) (High-performance HTTP web framework)
-- **ORM:** [GORM](https://gorm.io/) (Object Relational Mapping cho Golang)
-- **Database:** PostgreSQL
-- **Config:** [Godotenv](https://github.com/joho/godotenv)
-- **Middleware:** CORS tùy chỉnh, Recovery, Logger.
-- **CI/CD:** GitHub Actions (hỗ trợ SSH và Docker Hub).
+Đây là một Production-Ready Template được xây dựng trên ngôn ngữ Golang, tuân thủ nguyên lý **Clean Architecture** (Modularized) nhằm tối ưu hóa khả năng mở rộng, bảo trì và hiệu năng cực cao nhờ tích hợp Redis Caching.
 
 ---
 
-## 📂 Cấu trúc thư mục (Directory Structure)
+## 🏗️ Cấu Trúc Dự Án (Module-Based Architecture)
+
+Dự án được phân chia theo từng Module chức năng, giúp tách biệt hoàn toàn phạm vi ảnh hưởng (Separation of Concerns).
 
 ```text
-├── main.go                 # Entry point của ứng dụng
-├── config/                 # Cấu hình Database & Environment
-├── internal/               # Chứa logic cốt lõi (không cho phép import từ ngoài)
-│   ├── middleware/         # Các middleware (CORS, Auth, Logger...)
-│   ├── modules/            # Chia theo từng tính năng (Module)
-│   │   └── user/           # Ví dụ Module User
-│   │       ├── handler/    # Tiếp nhận HTTP request, validate dữ liệu
-│   │       ├── service/    # Logic nghiệp vụ (Business Logic)
-│   │       ├── repository/ # Thao tác với Database (SQL queries)
-│   │       ├── model/      # Định nghĩa struct (Schema)
-│   │       └── routes.go   # Định nghĩa route riêng cho module
-│   └── router/             # Khởi tạo router chính, gộp các module
-├── pkg/                    # Các công cụ/tiện ích dùng chung (Utils)
-├── .github/workflows/      # Cấu hình CI/CD (GitHub Actions)
-├── Dockerfile              # Cấu hình Docker image
-├── docker-compose.yml      # Orchestration cho Docker
-└── .env                    # Biến môi trường (DB, Secret Key...)
+├── main.go                 # Điểm khởi đầu của ứng dụng
+├── config/                 # Quản lý kết nối Database, Redis và biến môi trường
+├── internal/               # Logic nội bộ (Core Business)
+│   ├── middleware/         # Xử lý trung gian (CORS, Auth, Logger, Recovery)
+│   ├── router/             # Điều hướng trung tâm, kết nối các Module
+│   └── modules/            # Chứa các tính năng (Modules) của hệ thống
+│       └── user/           # Ví dụ Module User
+│           ├── handler/    # HTTP Layer: Tiếp nhận request, validate DTO
+│           ├── service/    # UseCase Layer: Xử lý nghiệp vụ logic chính
+│           ├── repository/ # Infrastructure Layer: Truy vấn PostgreSQL & Redis
+│           ├── model/      # Data Layer: Định nghĩa Schema & Entity
+│           └── routes.go   # Module-specific Routing
+├── pkg/                    # Các tiện ích dùng chung (Utilities)
+├── Dockerfile              # Cấu hình Build tối ưu (Multi-stage build)
+├── docker-compose.yml      # Orchestration cho toàn bộ Stack (App, DB, Redis)
+└── .env                    # Cấu hình môi trường (Không commit file này)
 ```
 
 ---
 
-## 🛠️ Cách cài đặt và sử dụng
+## ⚡ Cơ Chế Hoạt Động Của Redis (Performance Optimization)
 
-### 1. Yêu cầu hệ thống
-- Go version 1.20+
-- PostgreSQL đang chạy.
+Hệ thống áp dụng chiến lược **Cache-Aside Pattern** để đạt tốc độ đọc dữ liệu tức thì (Micro-seconds).
 
-### 2. Cài đặt
-1. **Clone dự án:**
-   ```bash
-   git clone <link-repo>
-   cd <folder-name>
-   ```
+### 🔍 Quy trình Đọc (Read Flow)
+1. **Request** gọi vào `Repository`.
+2. Kiểm tra dữ liệu trong **Redis**:
+   - **Cache Hit:** Trả về dữ liệu ngay lập tức từ RAM.
+   - **Cache Miss:** Truy vấn xuống **PostgreSQL**, sau đó lưu kết quả vào Redis (với TTL) rồi mới trả về.
 
-2. **Cấu hình môi trường:**
-   Tạo file `.env` từ mẫu:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=postgres
-   DB_PASSWORD=yourpassword
-   DB_NAME=yourdatabase
-   ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-   ```
-
-3. **Cài đặt thư viện:**
-   ```bash
-   go mod tidy
-   ```
-
-4. **Chạy dự án:**
-   ```bash
-   go run .
-   ```
+### 💾 Quy trình Ghi (Write Flow)
+1. Dữ liệu được ghi thẳng vào **PostgreSQL** (Source of Truth).
+2. Tự động **Invalidate/Update** cache tương ứng trong Redis (Xoá cache cũ hoặc cập nhật mới).
+3. Đảm bảo tính nhất quán (Consistency) giữa Database và Cache.
 
 ---
 
-## 🔄 Cách hoạt động (Data Flow)
+## 🛠️ Công Nghệ & Tính Năng Key
 
-Dự án tuân thủ luồng dữ liệu 1 chiều để đảm bảo tính minh bạch:
-
-1. **Client** gửi Request đến các Endpoint.
-2. **Router** định tuyến request đến đúng **Handler**.
-3. **Handler** kiểm tra dữ liệu đầu vào (Binding/Validation) và gọi **Service**.
-4. **Service** xử lý logic nghiệp vụ (tính toán, kiểm tra điều kiện...) và gọi **Repository**.
-5. **Repository** thực hiện truy vấn xuống **Database** thông qua GORM.
-6. Kết quả được trả ngược lại theo đúng thứ tự để Handler phản hồi cho Client.
+- **Gin Gonic:** HTTP Web Framework hiệu năng cao nhất hiện nay.
+- **GORM:** ORM mạnh mẽ với tính năng **Auto-Migration** (Tự động tạo bảng).
+- **PostgreSQL 17:** Cơ sở dữ liệu quan hệ ổn định và mạnh mẽ.
+- **Redis 8.0:** Hệ thống lưu trữ key-value trên RAM để caching cực nhanh.
+- **Docker-Compose:** Triển khai toàn bộ môi trường chỉ với 1 câu lệnh.
+- **CORS Middleware:** Cấu hình linh hoạt nguồn truy cập từ Frontend.
 
 ---
 
-## 🚢 Triển khai (Deployment)
+## 🚀 Hướng Dẫn Khởi Chạy Nhanh
 
-Dự án đi kèm sẵn file `.github/workflows/main.yml` hỗ trợ các luồng deploy tự động:
-- **Deploy qua SSH:** Tự động pull code mới về VPS và khởi chạy qua Docker Compose.
-- **Deploy qua Docker Hub:** Build image, push lên Docker Hub và lệnh cho server pull image mới về chạy.
+### 1. Yêu cầu
+- Docker & Docker Compose (Khuyên dùng)
+- Hoặc Go 1.25+ & PostgreSQL/Redis cục bộ.
+
+### 2. Cấu hình .env
+Tạo file `.env` tại thư mục gốc:
+```env
+# Database
+DB_HOST=db
+DB_PORT=5431
+DB_USER=postgres
+DB_PASSWORD=123456
+DB_NAME=postgres
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6378
+
+# App
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+### 3. Triển khai với Docker (Cách nhanh nhất)
+```bash
+# Khởi chạy toàn bộ hệ thống
+docker-compose up -d --build
+
+# Xem log ứng dụng
+docker-compose logs -f app
+```
+Ứng dụng sẽ chạy tại: `http://localhost:8080/api/v1`
 
 ---
 
-## ⚖️ Ưu và Nhược điểm
+## 🧪 Kiểm Tra API (Endpoints)
 
-### ✅ Ưu điểm:
-- **Tính đóng gói cao:** Mỗi module (user, product,...) là một thực thể độc lập. Khi bạn muốn sửa User, bạn không cần quan tâm đến Product.
-- **Dễ Unit Test:** Vì tách biệt Service và Repository dưới dạng Interface, bạn có thể dễ dàng viết Mock Test.
-- **Dễ mở rộng:** Chỉ cần copy cấu trúc một module hiện có để tạo module mới trong vài phút.
-- **Cấu hình linh hoạt:** Mọi thứ từ Database đến CORS đều được quản lý qua `.env`.
-
-### ❌ Nhược điểm:
-- **Boilerplate:** Đối với các dự án siêu nhỏ (vài API), cấu trúc này có vẻ hơi "cồng kềnh" do phải chia nhiều lớp (Handler-Service-Repo).
-- **Độ dốc học tập:** Những người mới bắt đầu có thể thấy khó hiểu về lý do tại sao phải chia nhỏ file như vậy.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/users/register` | Đăng ký User mới (Tự cập nhật Cache) |
+| `GET` | `/api/v1/users/` | Lấy danh sách toàn bộ User (Ưu tiên Redis) |
+| `GET` | `/api/v1/users/:id` | Lấy User theo ID (Ưu tiên Redis) |
 
 ---
 
-## 📝 Ghi chú
-- Dự án này đã tích hợp sẵn **Auto-Migration** của GORM, giúp tự động tạo bảng dữ liệu khi bạn khai báo Model mới.
-- Đừng bao giờ commit file `.env` lên Github (đã có trong `.gitignore`).
+## 📐 Nguyên Tắc Phát Triển
+
+1. **Interface Driven:** Các lớp Service và Repository giao tiếp qua Interface để dễ dàng viết Mock Test.
+2. **One-Way Dependency:** Module ngoài không được phép can thiệp trực tiếp vào logic nội bộ của module khác.
+3. **Consistency:** Mọi thay đổi dữ liệu phải đảm bảo làm mới Cache Redis.
+
+---
+
+## 📝 Ghi Chú
+- Hệ thống đã được thiết lập Network riêng (`go_template`) trong Docker để các container liên lạc bảo mật.
+- Port nội bộ và Port mapping đã được tuỳ chỉnh để tránh xung đột với các ứng dụng khác trên máy (DB: 5431, Redis: 6378).
+
+---
+*Phát triển bởi [NhatHaoDev] - Chúc bạn có những sản phẩm tuyệt vời!*

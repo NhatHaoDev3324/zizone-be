@@ -5,10 +5,11 @@ import (
 	"template/internal/modules/user"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-func NewRouter(db *gorm.DB) *gin.Engine {
+func NewRouter(db *gorm.DB, rdb *redis.Client) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
@@ -17,7 +18,7 @@ func NewRouter(db *gorm.DB) *gin.Engine {
 
 	api := r.Group("/api/v1")
 	{
-		user.RegisterRoutes(api, db)
+		user.RegisterRoutes(api, db, rdb)
 	}
 
 	return r

@@ -6,11 +6,12 @@ import (
 	"template/internal/modules/user/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-func RegisterRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewUserRepository(db)
+func RegisterRoutes(r *gin.RouterGroup, db *gorm.DB, rdb *redis.Client) {
+	repo := repository.NewUserRepository(db, rdb)
 	svc := service.NewUserService(repo)
 	h := handler.NewUserHandler(svc)
 
@@ -18,5 +19,6 @@ func RegisterRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	{
 		userGroup.POST("/register", h.Register)
 		userGroup.GET("/", h.GetUsers)
+		userGroup.GET("/:id", h.GetUserByID)
 	}
 }
