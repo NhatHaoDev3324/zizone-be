@@ -3,10 +3,15 @@ package config
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/NhatHaoDev3324/goAuth/factory"
 	"github.com/redis/go-redis/v9"
+)
+
+var (
+	Redis *redis.Client
+	Ctx   = context.Background()
 )
 
 func ConnectRedis() *redis.Client {
@@ -15,18 +20,17 @@ func ConnectRedis() *redis.Client {
 
 	addr := fmt.Sprintf("%s:%s", redisHost, redisPort)
 
-	redis := redis.NewClient(&redis.Options{
+	Redis = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: "",
 		DB:       0,
 	})
 
-	ctx := context.Background()
-	_, err := redis.Ping(ctx).Result()
+	_, err := Redis.Ping(Ctx).Result()
 	if err != nil {
-		log.Fatalf("❌ Failed to connect to Redis: %v", err)
+		factory.LogError("Failed to connect to Redis: " + err.Error())
 	}
 
-	fmt.Println("✅ Connected to Redis successfully!")
-	return redis
+	factory.LogSuccess("Connected to Redis successfully!")
+	return Redis
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NhatHaoDev3324/GoTemplate/internal/modules/user/model"
+	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -15,6 +15,8 @@ type UserRepository interface {
 	Create(user *model.User) error
 	FindAll() ([]model.User, error)
 	FindByID(id uint) (*model.User, error)
+	FindByEmail(email string) (*model.User, error)
+	Update(user *model.User) error
 }
 
 type userRepository struct {
@@ -34,12 +36,10 @@ func (r *userRepository) Create(user *model.User) error {
 
 	ctx := context.Background()
 
-	// Cache the new user
 	userKey := fmt.Sprintf("user:%d", user.ID)
 	userData, _ := json.Marshal(user)
-	r.redis.Set(ctx, userKey, userData, 10*time.Minute)
+	r.redis.Set(ctx, userKey, userData, 30*time.Minute)
 
-	// Invalidate the "all_users" list cache
 	r.redis.Del(ctx, "users:all")
 
 	return nil
@@ -49,7 +49,6 @@ func (r *userRepository) FindAll() ([]model.User, error) {
 	ctx := context.Background()
 	var users []model.User
 
-	// Try to get from Redis
 	cachedUsers, err := r.redis.Get(ctx, "users:all").Result()
 	if err == nil {
 		if json.Unmarshal([]byte(cachedUsers), &users) == nil {
@@ -57,12 +56,10 @@ func (r *userRepository) FindAll() ([]model.User, error) {
 		}
 	}
 
-	// If not in Redis, get from database
 	err = r.db.Find(&users).Error
 	if err == nil {
-		// Cache the results
 		usersData, _ := json.Marshal(users)
-		r.redis.Set(ctx, "users:all", usersData, 10*time.Minute)
+		r.redis.Set(ctx, "users:all", usersData, 30*time.Minute)
 	}
 
 	return users, err
@@ -73,7 +70,6 @@ func (r *userRepository) FindByID(id uint) (*model.User, error) {
 	var user model.User
 	userKey := fmt.Sprintf("user:%d", id)
 
-	// Try to get from Redis
 	cachedUser, err := r.redis.Get(ctx, userKey).Result()
 	if err == nil {
 		if json.Unmarshal([]byte(cachedUser), &user) == nil {
@@ -81,13 +77,34 @@ func (r *userRepository) FindByID(id uint) (*model.User, error) {
 		}
 	}
 
-	// If not in Redis, get from database
 	err = r.db.First(&user, id).Error
 	if err == nil {
-		// Cache the result
 		userData, _ := json.Marshal(user)
-		r.redis.Set(ctx, userKey, userData, 10*time.Minute)
+		r.redis.Set(ctx, userKey, userData, 30*time.Minute)
 	}
 
 	return &user, err
+}
+func (r *userRepository) FindByEmail(email string) (*model.User, error) {
+	var user model.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) Update(user *model.User) error {
+	err := r.db.Save(user).Error
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	userKey := fmt.Sprintf("user:%d", user.ID)
+	userData, _ := json.Marshal(user)
+	r.redis.Set(ctx, userKey, userData, 30*time.Minute)
+	r.redis.Del(ctx, "users:all")
+
+	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/NhatHaoDev3324/GoTemplate/pkg/response"
-	"github.com/NhatHaoDev3324/GoTemplate/utils"
+	"github.com/NhatHaoDev3324/goAuth/pkg/response"
+	"github.com/NhatHaoDev3324/goAuth/utils"
 
 	"github.com/gin-gonic/gin"
 )

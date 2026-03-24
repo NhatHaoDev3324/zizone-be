@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/NhatHaoDev3324/GoTemplate/internal/modules/user/model"
+	"github.com/NhatHaoDev3324/goAuth/factory"
+	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,11 +27,11 @@ func ConnectDB() *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("❌ Failed to connect database: ", err)
+		factory.LogError("Failed to connect to database: " + err.Error())
 	}
 
 	db.AutoMigrate(&model.User{})
 
-	fmt.Println("✅ Connected to PostgreSQL successfully!")
+	factory.LogSuccess("Connected to PostgreSQL successfully!")
 	return db
 }

@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/GoTemplate/internal/middleware"
-	"github.com/NhatHaoDev3324/GoTemplate/internal/modules/user"
+	"github.com/NhatHaoDev3324/goAuth/internal/middleware"
+	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -24,7 +24,7 @@ func NewRouter(db *gorm.DB, redis *redis.Client) *gin.Engine {
 
 	api := r.Group("/api/v1")
 	{
-		user.RegisterRoutes(api, db, redis)
+		auth.AuthRoutes(api, db, redis)
 	}
 
 	return r
