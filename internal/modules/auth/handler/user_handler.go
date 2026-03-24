@@ -51,7 +51,7 @@ func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 	}
 
 	if err := h.service.RegisterByEmail(input.Email, input.Password, input.Name); err != nil {
-		response.Fail(ctx, http.StatusInternalServerError, "Could not register user: " + err.Error())
+		response.Fail(ctx, http.StatusInternalServerError, "Could not register user: "+err.Error())
 		return
 	}
 
