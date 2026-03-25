@@ -15,7 +15,7 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 	svc := service.NewUserService(repo)
 	h := handler.NewUserHandler(svc)
 
-	userGroup := r.Group("/users")
+	userGroup := r.Group("/auth")
 	{
 		userGroup.POST("/register-by-email", h.RegisterByEmail)
 		userGroup.POST("/register-by-google", h.RegisterByGoogle)
