@@ -18,12 +18,12 @@ import (
 )
 
 type UserService interface {
-	RegisterByEmail(email, password, name string) error
+	RegisterByEmail(firstName, lastName, email, password string) error
 	RegisterByGoogle(code string) (string, error)
 	LoginByEmail(email, password string) (string, error)
 	VerifyOTP(email, otp string) error
 	GetAllUsers() ([]model.User, error)
-	GetUserByID(id uint) (*model.User, error)
+	GetUserByID(id string) (*model.User, error)
 }
 
 type userService struct {
@@ -34,7 +34,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{repo}
 }
 
-func (s *userService) RegisterByEmail(email, password, name string) error {
+func (s *userService) RegisterByEmail(firstName, lastName, email, password string) error {
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		return err
@@ -46,20 +46,24 @@ func (s *userService) RegisterByEmail(email, password, name string) error {
 			return errors.New("email already registered and verified")
 		}
 		user.Password = hashedPassword
-		user.Name = name
+		user.FirstName = firstName
+		user.LastName = lastName
+		user.FullName = firstName + " " + lastName
 		if err := s.repo.Update(user); err != nil {
 			return err
 		}
 	} else {
 		user = &model.User{
-			ID:       uuid.New(),
-			Email:    email,
-			Password: hashedPassword,
-			Name:     name,
-			Avatar:   constant.NoAvatar,
-			Provider: constant.ProviderEmail,
-			Role:     constant.RoleUser,
-			Active:   false,
+			ID:        uuid.New(),
+			FirstName: firstName,
+			LastName:  lastName,
+			Email:     email,
+			Password:  hashedPassword,
+			FullName:  firstName + " " + lastName,
+			Avatar:    constant.NoAvatar,
+			Provider:  constant.ProviderEmail,
+			Role:      constant.RoleUser,
+			Active:    false,
 		}
 		if err := s.repo.Create(user); err != nil {
 			return err
@@ -98,13 +102,15 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			user = &model.User{
-				ID:       uuid.New(),
-				Email:    googleUser.Email,
-				Name:     googleUser.Name,
-				Avatar:   googleUser.Picture,
-				Provider: constant.ProviderGoogle,
-				Role:     constant.RoleUser,
-				Active:   true,
+				ID:        uuid.New(),
+				FirstName: googleUser.GivenName,
+				LastName:  googleUser.FamilyName,
+				Email:     googleUser.Email,
+				FullName:  googleUser.Name,
+				Avatar:    googleUser.Picture,
+				Provider:  constant.ProviderGoogle,
+				Role:      constant.RoleUser,
+				Active:    true,
 			}
 			if err := s.repo.Create(user); err != nil {
 				return "", err
@@ -123,9 +129,11 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 }
 
 type GoogleUser struct {
-	Email   string `json:"email"`
-	Name    string `json:"name"`
-	Picture string `json:"picture"`
+	Email      string `json:"email"`
+	Name       string `json:"name"`
+	Picture    string `json:"picture"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
 }
 
 func (s *userService) getGoogleAccount(code string) (*GoogleUser, error) {
@@ -213,6 +221,6 @@ func (s *userService) GetAllUsers() ([]model.User, error) {
 	return s.repo.FindAll()
 }
 
-func (s *userService) GetUserByID(id uint) (*model.User, error) {
+func (s *userService) GetUserByID(id string) (*model.User, error) {
 	return s.repo.FindByID(id)
 }

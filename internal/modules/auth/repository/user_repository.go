@@ -14,7 +14,7 @@ import (
 type UserRepository interface {
 	Create(user *model.User) error
 	FindAll() ([]model.User, error)
-	FindByID(id uint) (*model.User, error)
+	FindByID(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
 	Update(user *model.User) error
 }
@@ -65,10 +65,10 @@ func (r *userRepository) FindAll() ([]model.User, error) {
 	return users, err
 }
 
-func (r *userRepository) FindByID(id uint) (*model.User, error) {
+func (r *userRepository) FindByID(id string) (*model.User, error) {
 	ctx := context.Background()
 	var user model.User
-	userKey := fmt.Sprintf("user:%d", id)
+	userKey := fmt.Sprintf("user:%s", id)
 
 	cachedUser, err := r.redis.Get(ctx, userKey).Result()
 	if err == nil {
@@ -77,7 +77,7 @@ func (r *userRepository) FindByID(id uint) (*model.User, error) {
 		}
 	}
 
-	err = r.db.First(&user, id).Error
+	err = r.db.Where("id = ?", id).First(&user).Error
 	if err == nil {
 		userData, _ := json.Marshal(user)
 		r.redis.Set(ctx, userKey, userData, 30*time.Minute)
@@ -85,6 +85,7 @@ func (r *userRepository) FindByID(id uint) (*model.User, error) {
 
 	return &user, err
 }
+
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error

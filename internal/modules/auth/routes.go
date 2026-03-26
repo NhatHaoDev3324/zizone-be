@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/NhatHaoDev3324/goAuth/internal/middleware"
 	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/handler"
 	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/repository"
 	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/service"
@@ -15,13 +16,13 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 	svc := service.NewUserService(repo)
 	h := handler.NewUserHandler(svc)
 
-	userGroup := r.Group("/auth")
+	authGroup := r.Group("/auth")
 	{
-		userGroup.POST("/register-by-email", h.RegisterByEmail)
-		userGroup.POST("/register-by-google", h.RegisterByGoogle)
-		userGroup.POST("/login-by-email", h.LoginByEmail)
-		userGroup.POST("/verify-otp", h.VerifyOTP)
-		userGroup.GET("/", h.GetUsers)
-		userGroup.GET("/:id", h.GetUserByID)
+		authGroup.POST("/register-by-email", h.RegisterByEmail)
+		authGroup.POST("/register-by-google", h.RegisterByGoogle)
+		authGroup.POST("/login-by-email", h.LoginByEmail)
+		authGroup.POST("/verify-otp", h.VerifyOTP)
+		authGroup.GET("/profile", middleware.AuthMiddleware(), h.GetProfile)
+		authGroup.GET("/", h.GetUsers)
 	}
 }

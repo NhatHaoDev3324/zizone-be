@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/service"
 	"github.com/NhatHaoDev3324/goAuth/pkg/response"
@@ -20,13 +19,24 @@ func NewUserHandler(service service.UserService) *UserHandler {
 
 func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 	var input struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-		Name     string `json:"name"`
+		FirstName string `json:"first_name" binding:"required"`
+		LastName  string `json:"last_name" binding:"required"`
+		Email     string `json:"email" binding:"required"`
+		Password  string `json:"password" binding:"required"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	if input.FirstName == "" {
+		response.Fail(ctx, http.StatusBadRequest, "First name is required")
+		return
+	}
+
+	if input.LastName == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Last name is required")
 		return
 	}
 
@@ -45,12 +55,7 @@ func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 		return
 	}
 
-	if input.Name == "" {
-		response.Fail(ctx, http.StatusBadRequest, "Name is required")
-		return
-	}
-
-	if err := h.service.RegisterByEmail(input.Email, input.Password, input.Name); err != nil {
+	if err := h.service.RegisterByEmail(input.FirstName, input.LastName, input.Email, input.Password); err != nil {
 		response.Fail(ctx, http.StatusInternalServerError, "Could not register user: "+err.Error())
 		return
 	}
@@ -120,6 +125,27 @@ func (h *UserHandler) RegisterByGoogle(ctx *gin.Context) {
 	response.SuccessWithToken(ctx, "Logged in successfully", token)
 }
 
+func (h *UserHandler) GetProfile(ctx *gin.Context) {
+	userId, exists := ctx.Get("userID")
+	if !exists {
+		response.Fail(ctx, http.StatusUnauthorized, "User not found")
+		return
+	}
+	userID, ok := userId.(string)
+	if !ok {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	user, err := h.service.GetUserByID(userID)
+	if err != nil {
+		response.Fail(ctx, http.StatusNotFound, "User not found")
+		return
+	}
+
+	response.SuccessWithData(ctx, "User fetched successfully", user)
+}
+
 func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
@@ -128,20 +154,4 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	}
 
 	response.SuccessWithData(ctx, "Users fetched successfully", users)
-}
-
-func (h *UserHandler) GetUserByID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		response.Fail(ctx, http.StatusBadRequest, "Invalid user ID")
-		return
-	}
-
-	user, err := h.service.GetUserByID(uint(id))
-	if err != nil {
-		response.Fail(ctx, http.StatusNotFound, "User not found")
-		return
-	}
-
-	response.SuccessWithData(ctx, "User fetched successfully", user)
 }
