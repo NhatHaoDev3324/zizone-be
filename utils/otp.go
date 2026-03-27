@@ -42,7 +42,7 @@ func GenerateOTP() string {
 	return string(b)
 }
 
-func SendOTP(email string) (string, error) {
+func SendOTP(email string, name string) (string, error) {
 	lockKey := "otp_lock:" + email
 	exists, _ := config.Redis.Exists(config.Ctx, lockKey).Result()
 	if exists > 0 {
@@ -64,7 +64,7 @@ func SendOTP(email string) (string, error) {
 	}
 
 	go func() {
-		subject := "NhatHaoDev3324 - Xác thực tài khoản"
+		subject := "Xác thực tài khoản " + email
 
 		otpOnce.Do(func() {
 			var err error
@@ -80,7 +80,10 @@ func SendOTP(email string) (string, error) {
 		}
 
 		var body bytes.Buffer
-		data := struct{ OTP string }{OTP: otp}
+		data := struct {
+			OTP  string
+			Name string
+		}{OTP: otp, Name: name}
 		if err := otpTmpl.Execute(&body, data); err != nil {
 			factory.LogError("Failed to execute template: " + err.Error())
 			return

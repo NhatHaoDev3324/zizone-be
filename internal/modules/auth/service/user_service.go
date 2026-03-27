@@ -70,7 +70,7 @@ func (s *userService) RegisterByEmail(firstName, lastName, email, password strin
 		}
 	}
 
-	_, err = utils.SendOTP(email)
+	_, err = utils.SendOTP(email, user.FullName)
 	return err
 }
 
@@ -103,8 +103,8 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			user = &model.User{
 				ID:        uuid.New(),
-				FirstName: googleUser.GivenName,
-				LastName:  googleUser.FamilyName,
+				FirstName: googleUser.FamilyName,
+				LastName:  googleUser.GivenName,
 				Email:     googleUser.Email,
 				FullName:  googleUser.Name,
 				Avatar:    googleUser.Picture,
