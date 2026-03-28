@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"math/rand"
 	"os"
 	"time"
 
@@ -29,6 +28,18 @@ func GenerateAccessToken(ID, Role string) (string, error) {
 	return token.SignedString(accessJWTSecret)
 }
 
+func GenerateResetPasswordToken(ID string) (string, error) {
+	resetClaims := &AccessJWTClaims{
+		ID: ID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, resetClaims)
+	return token.SignedString(accessJWTSecret)
+}
+
 func ParseAccessToken(tokenString string) (*AccessJWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &AccessJWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return accessJWTSecret, nil
@@ -40,16 +51,4 @@ func ParseAccessToken(tokenString string) (*AccessJWTClaims, error) {
 		return claims, nil
 	}
 	return nil, err
-}
-
-func GenerateRandomToken(n int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	source := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(source)
-
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = charset[r.Intn(len(charset))]
-	}
-	return string(b)
 }

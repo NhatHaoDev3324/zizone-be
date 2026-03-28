@@ -22,8 +22,10 @@ type UserService interface {
 	RegisterByGoogle(code string) (string, error)
 	LoginByEmail(email, password string) (string, error)
 	VerifyOTP(email, otp string) error
-	GetAllUsers() ([]model.User, error)
 	GetUserByID(id string) (*model.User, error)
+	ForgotPassword(email string) error
+	VerifyOTPForgotPassword(email, otp string) (string, error)
+	ResetPassword(userID, newPassword string) error
 }
 
 type userService struct {
@@ -203,7 +205,7 @@ func (s *userService) LoginByEmail(email, password string) (string, error) {
 	}
 
 	if !user.Active {
-		return "", errors.New("account is not verified. please check your email for OTP")
+		return "", errors.New("account is not verified")
 	}
 
 	if !utils.CheckPasswordHash(password, user.Password) {
@@ -217,10 +219,55 @@ func (s *userService) LoginByEmail(email, password string) (string, error) {
 	return token, nil
 }
 
-func (s *userService) GetAllUsers() ([]model.User, error) {
-	return s.repo.FindAll()
-}
-
 func (s *userService) GetUserByID(id string) (*model.User, error) {
 	return s.repo.FindByID(id)
+}
+
+func (s *userService) ForgotPassword(email string) error {
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+	_, err = utils.SendOTP(email, user.FullName)
+	return err
+}
+
+func (s *userService) VerifyOTPForgotPassword(email, otp string) (string, error) {
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		return "", err
+	}
+
+	valid, status, err := utils.VerifyOTP(email, otp)
+	if err != nil {
+		return "", err
+	}
+
+	if !valid {
+		return "", errors.New(status)
+	}
+
+	token, err := utils.GenerateResetPasswordToken(user.ID.String())
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *userService) ResetPassword(userID, newPassword string) error {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	user.Password = hashedPassword
+	user.Active = true
+
+	return s.repo.Update(user)
 }

@@ -68,7 +68,7 @@ func SendOTP(email string, name string) (string, error) {
 
 		otpOnce.Do(func() {
 			var err error
-			otpTmpl, err = template.ParseFiles("template/email.html")
+			otpTmpl, err = template.ParseFiles("template/verifyEmail.html")
 			if err != nil {
 				factory.LogError("Failed to parse email template: " + err.Error())
 			}

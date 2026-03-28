@@ -18,11 +18,13 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 
 	authGroup := r.Group("/auth")
 	{
+		authGroup.GET("/profile", middleware.AuthMiddleware(), h.GetProfile)
 		authGroup.POST("/register-by-email", h.RegisterByEmail)
 		authGroup.POST("/register-by-google", h.RegisterByGoogle)
 		authGroup.POST("/login-by-email", h.LoginByEmail)
 		authGroup.POST("/verify-otp", h.VerifyOTP)
-		authGroup.GET("/profile", middleware.AuthMiddleware(), h.GetProfile)
-		authGroup.GET("/", h.GetUsers)
+		authGroup.POST("/forgot-password", h.ForgotPassword)
+		authGroup.POST("/verify-otp-forgot-password", h.VerifyOTPForgotPassword)
+		authGroup.POST("/reset-password", middleware.AuthMiddleware(), h.ResetPassword)
 	}
 }

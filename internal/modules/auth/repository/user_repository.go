@@ -102,9 +102,8 @@ func (r *userRepository) Update(user *model.User) error {
 	}
 
 	ctx := context.Background()
-	userKey := fmt.Sprintf("user:%d", user.ID)
-	userData, _ := json.Marshal(user)
-	r.redis.Set(ctx, userKey, userData, 30*time.Minute)
+	userKey := fmt.Sprintf("user:%s", user.ID)
+	r.redis.Del(ctx, userKey)
 	r.redis.Del(ctx, "users:all")
 
 	return nil
