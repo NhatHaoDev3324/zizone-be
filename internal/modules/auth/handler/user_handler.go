@@ -19,10 +19,9 @@ func NewUserHandler(service service.UserService) *UserHandler {
 
 func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 	var input struct {
-		FirstName string `json:"first_name" binding:"required"`
-		LastName  string `json:"last_name" binding:"required"`
-		Email     string `json:"email" binding:"required"`
-		Password  string `json:"password" binding:"required"`
+		FullName string `json:"full_name" binding:"required"`
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -30,13 +29,8 @@ func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 		return
 	}
 
-	if input.FirstName == "" {
-		response.Fail(ctx, http.StatusBadRequest, "First name is required")
-		return
-	}
-
-	if input.LastName == "" {
-		response.Fail(ctx, http.StatusBadRequest, "Last name is required")
+	if input.FullName == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Full name is required")
 		return
 	}
 
@@ -55,7 +49,7 @@ func (h *UserHandler) RegisterByEmail(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.RegisterByEmail(input.FirstName, input.LastName, input.Email, input.Password); err != nil {
+	if err := h.service.RegisterByEmail(input.FullName, input.Email, input.Password); err != nil {
 		response.Fail(ctx, http.StatusInternalServerError, "Could not register user: "+err.Error())
 		return
 	}

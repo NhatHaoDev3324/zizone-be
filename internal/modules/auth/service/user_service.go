@@ -1,14 +1,9 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"os"
 
+	"github.com/NhatHaoDev3324/zizone-be/config"
 	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
@@ -18,7 +13,7 @@ import (
 )
 
 type UserService interface {
-	RegisterByEmail(firstName, lastName, email, password string) error
+	RegisterByEmail(fullName, email, password string) error
 	RegisterByGoogle(code string) (string, error)
 	LoginByEmail(email, password string) (string, error)
 	VerifyOTP(email, otp string) error
@@ -36,7 +31,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{repo}
 }
 
-func (s *userService) RegisterByEmail(firstName, lastName, email, password string) error {
+func (s *userService) RegisterByEmail(fullName, email, password string) error {
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		return err
@@ -48,24 +43,20 @@ func (s *userService) RegisterByEmail(firstName, lastName, email, password strin
 			return errors.New("email already registered and verified")
 		}
 		user.Password = hashedPassword
-		user.FirstName = firstName
-		user.LastName = lastName
-		user.FullName = firstName + " " + lastName
+		user.FullName = fullName
 		if err := s.repo.Update(user); err != nil {
 			return err
 		}
 	} else {
 		user = &model.User{
-			ID:        uuid.New(),
-			FirstName: firstName,
-			LastName:  lastName,
-			Email:     email,
-			Password:  hashedPassword,
-			FullName:  firstName + " " + lastName,
-			Avatar:    constant.NoAvatar,
-			Provider:  constant.ProviderEmail,
-			Role:      constant.RoleUser,
-			Active:    false,
+			ID:       uuid.New(),
+			Email:    email,
+			Password: hashedPassword,
+			FullName: fullName,
+			Avatar:   constant.NoAvatar,
+			Provider: constant.ProviderEmail,
+			Role:     constant.RoleUser,
+			Active:   false,
 		}
 		if err := s.repo.Create(user); err != nil {
 			return err
@@ -96,23 +87,21 @@ func (s *userService) VerifyOTP(email, otp string) error {
 }
 
 func (s *userService) RegisterByGoogle(code string) (string, error) {
-	googleUser, err := s.getGoogleAccount(code)
+	googleAuth, err := config.GetGoogleAuth(code)
 	if err != nil {
 		return "", err
 	}
-	user, err := s.repo.FindByEmail(googleUser.Email)
+	user, err := s.repo.FindByEmail(googleAuth.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			user = &model.User{
-				ID:        uuid.New(),
-				FirstName: googleUser.FamilyName,
-				LastName:  googleUser.GivenName,
-				Email:     googleUser.Email,
-				FullName:  googleUser.Name,
-				Avatar:    googleUser.Picture,
-				Provider:  constant.ProviderGoogle,
-				Role:      constant.RoleUser,
-				Active:    true,
+				ID:       uuid.New(),
+				Email:    googleAuth.Email,
+				FullName: googleAuth.Name,
+				Avatar:   googleAuth.Picture,
+				Provider: constant.ProviderGoogle,
+				Role:     constant.RoleUser,
+				Active:   true,
 			}
 			if err := s.repo.Create(user); err != nil {
 				return "", err
@@ -122,77 +111,12 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 		}
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID.String(), user.Role)
+	token, err := utils.GenerateAccessToken(user.ID.String())
 	if err != nil {
 		return "", err
 	}
 
 	return token, nil
-}
-
-type GoogleUser struct {
-	Email      string `json:"email"`
-	Name       string `json:"name"`
-	Picture    string `json:"picture"`
-	GivenName  string `json:"given_name"`
-	FamilyName string `json:"family_name"`
-}
-
-func (s *userService) getGoogleAccount(code string) (*GoogleUser, error) {
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURI := os.Getenv("GOOGLE_REDIRECT_URI")
-
-	if clientID == "" || clientSecret == "" || redirectURI == "" {
-		return nil, errors.New("google credentials not configured")
-	}
-
-	tokenURL := "https://oauth2.googleapis.com/token"
-	data := url.Values{}
-	data.Set("code", code)
-	data.Set("client_id", clientID)
-	data.Set("client_secret", clientSecret)
-	data.Set("redirect_uri", redirectURI)
-	data.Set("grant_type", "authorization_code")
-
-	resp, err := http.PostForm(tokenURL, data)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to exchange code for token: %v", resp.Status)
-	}
-
-	var tokenRes struct {
-		AccessToken string `json:"access_token"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&tokenRes); err != nil {
-		return nil, err
-	}
-
-	userInfoURL := "https://www.googleapis.com/oauth2/v2/userinfo"
-	req, _ := http.NewRequest("GET", userInfoURL, nil)
-	req.Header.Set("Authorization", "Bearer "+tokenRes.AccessToken)
-
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to get user info: %v, %s", resp.Status, string(body))
-	}
-
-	var googleUser GoogleUser
-	if err := json.NewDecoder(resp.Body).Decode(&googleUser); err != nil {
-		return nil, err
-	}
-
-	return &googleUser, nil
 }
 
 func (s *userService) LoginByEmail(email, password string) (string, error) {
@@ -212,7 +136,7 @@ func (s *userService) LoginByEmail(email, password string) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID.String(), user.Role)
+	token, err := utils.GenerateAccessToken(user.ID.String())
 	if err != nil {
 		return "", err
 	}
