@@ -11,9 +11,10 @@ import (
 )
 
 type GoogleAuth struct {
-	Email   string `json:"email"`
-	Name    string `json:"name"`
-	Picture string `json:"picture"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+	Picture    string `json:"picture"`
 }
 
 func GetGoogleAuth(code string) (*GoogleAuth, error) {

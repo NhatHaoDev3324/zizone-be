@@ -97,7 +97,7 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 			user = &model.User{
 				ID:       uuid.New(),
 				Email:    googleAuth.Email,
-				FullName: googleAuth.Name,
+				FullName: googleAuth.FamilyName + " " + googleAuth.GivenName,
 				Avatar:   googleAuth.Picture,
 				Provider: constant.ProviderGoogle,
 				Role:     constant.RoleUser,
