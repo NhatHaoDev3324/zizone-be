@@ -3,7 +3,7 @@ package factory
 import (
 	"log"
 
-	"github.com/NhatHaoDev3324/goAuth/constant"
+	"github.com/NhatHaoDev3324/zizone-be/constant"
 )
 
 func LogSuccess(msg string) {

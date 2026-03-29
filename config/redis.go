@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NhatHaoDev3324/goAuth/factory"
+	"github.com/NhatHaoDev3324/zizone-be/factory"
 	"github.com/redis/go-redis/v9"
 )
 

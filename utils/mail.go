@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NhatHaoDev3324/goAuth/factory"
+	"github.com/NhatHaoDev3324/zizone-be/factory"
 )
 
 var MailSvc *MailService

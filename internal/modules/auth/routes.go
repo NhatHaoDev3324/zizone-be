@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"github.com/NhatHaoDev3324/goAuth/internal/middleware"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/handler"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/repository"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/service"
+	"github.com/NhatHaoDev3324/zizone-be/internal/middleware"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/handler"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

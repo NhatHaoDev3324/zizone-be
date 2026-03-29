@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/goAuth/internal/middleware"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth"
+	"github.com/NhatHaoDev3324/zizone-be/internal/middleware"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/NhatHaoDev3324/goAuth/config"
-	"github.com/NhatHaoDev3324/goAuth/factory"
-	"github.com/NhatHaoDev3324/goAuth/internal/router"
-	"github.com/NhatHaoDev3324/goAuth/utils"
+	"github.com/NhatHaoDev3324/zizone-be/config"
+	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/internal/router"
+	"github.com/NhatHaoDev3324/zizone-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )

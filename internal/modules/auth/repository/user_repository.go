@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

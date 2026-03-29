@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/NhatHaoDev3324/goAuth/pkg/response"
-	"github.com/NhatHaoDev3324/goAuth/utils"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/response"
+	"github.com/NhatHaoDev3324/zizone-be/utils"
 
 	"github.com/gin-gonic/gin"
 )

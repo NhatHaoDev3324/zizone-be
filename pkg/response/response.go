@@ -3,7 +3,7 @@ package response
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/goAuth/constant"
+	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/gin-gonic/gin"
 )
 

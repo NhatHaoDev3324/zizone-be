@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NhatHaoDev3324/goAuth/factory"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/model"
+	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

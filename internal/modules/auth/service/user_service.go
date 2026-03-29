@@ -9,10 +9,10 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/NhatHaoDev3324/goAuth/constant"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/model"
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/repository"
-	"github.com/NhatHaoDev3324/goAuth/utils"
+	"github.com/NhatHaoDev3324/zizone-be/constant"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
+	"github.com/NhatHaoDev3324/zizone-be/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

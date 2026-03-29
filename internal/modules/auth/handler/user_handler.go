@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/goAuth/internal/modules/auth/service"
-	"github.com/NhatHaoDev3324/goAuth/pkg/response"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/service"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
