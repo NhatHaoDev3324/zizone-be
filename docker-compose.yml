@@ -34,14 +34,20 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5431
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_PORT=${DB_PORT:-5432}
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-123456}
       - DB_NAME=${DB_NAME:-postgres}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6378
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+      - ACCESS_JWT_SECRET=${ACCESS_JWT_SECRET:-website_zizone}
+      - MAIL_USER=${MAIL_USER:-talonlongkiem22@gmail.com}
+      - MAIL_PASS=${MAIL_PASS:-gjae ovdd icbk gxfx}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-825850566727-2u0jtncv8v5p8koo04cbafh0ak8f4r18.apps.googleusercontent.com}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-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}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:3000/sign-in}
     depends_on:
       - db
       - redis
