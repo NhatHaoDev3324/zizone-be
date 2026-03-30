@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - go_template
+      - zizone-net
     command: ["postgres", "-p", "5431"]
 
   redis:
@@ -24,7 +24,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - go_template
+      - zizone-net
     command: ["redis-server", "--port", "6378"]
 
   app:
@@ -46,10 +46,10 @@ services:
       - db
       - redis
     networks:
-      - go_template
+      - zizone-net
 
 networks:
-  go_template:
+  zizone-net:
     driver: bridge
 
 volumes:

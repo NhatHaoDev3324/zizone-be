@@ -46,35 +46,35 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            docker pull ${{ env.IMAGE_NAME }}:${{ github.run_number }}
+            docker pull "${{ env.IMAGE_NAME }}:${{ github.run_number }}"
 
-            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker stop "${{ env.CONTAINER_NAME }}" || true
 
-            docker rm ${{ env.CONTAINER_NAME }} || true
+            docker rm "${{ env.CONTAINER_NAME }}" || true
 
             docker network create zizone-net || true
 
             docker run -d \
-              --name ${{ env.CONTAINER_NAME }} \
+              --name "${{ env.CONTAINER_NAME }}" \
               --network zizone-net \
-              -p ${{ env.SERVER_PORT }}:8080 \
+              -p "${{ env.SERVER_PORT }}:8080" \
               --restart=always \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_PORT=${{ secrets.DB_PORT }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_NAME=${{ secrets.DB_NAME }} \
-              -e ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }} \
-              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-              -e ACCESS_JWT_SECRET=${{ secrets.ACCESS_JWT_SECRET }} \
-              -e MAIL_USER=${{ secrets.MAIL_USER }} \
-              -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
-              -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-              -e GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }} \
-            ${{ env.IMAGE_NAME }}:${{ github.run_number }}
+              -e DB_HOST="${{ secrets.DB_HOST }}" \
+              -e DB_PORT="${{ secrets.DB_PORT }}" \
+              -e DB_USER="${{ secrets.DB_USER }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e DB_NAME="${{ secrets.DB_NAME }}" \
+              -e ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}" \
+              -e REDIS_HOST="${{ secrets.REDIS_HOST }}" \
+              -e REDIS_PORT="${{ secrets.REDIS_PORT }}" \
+              -e ACCESS_JWT_SECRET="${{ secrets.ACCESS_JWT_SECRET }}" \
+              -e MAIL_USER="${{ secrets.MAIL_USER }}" \
+              -e MAIL_PASS="${{ secrets.MAIL_PASS }}" \
+              -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
+              "${{ env.IMAGE_NAME }}:${{ github.run_number }}"
 
             docker image prune -f
