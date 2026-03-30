@@ -54,8 +54,6 @@ jobs:
 
             docker rm "${{ env.CONTAINER_NAME }}" || true
 
-            docker network create zizone-net || true
-
             docker run -d \
               --name "${{ env.CONTAINER_NAME }}" \
               --network zizone-net \
