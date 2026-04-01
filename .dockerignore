@@ -20,7 +20,6 @@ Thumbs.db
 logs/
 debug.log
 
-.env
 .env.local
 .env.development
 .env.test
