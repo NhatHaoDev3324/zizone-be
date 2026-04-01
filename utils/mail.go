@@ -131,7 +131,7 @@ func (m *MailService) send(c *smtp.Client, job EmailJob) error {
 	}
 
 	header := make(map[string]string)
-	header["From"] = "NhatHao <" + m.from + ">"
+	header["From"] = "Zizone <" + m.from + ">"
 	header["To"] = strings.Join(job.To, ",")
 	header["Subject"] = job.Subject
 	header["MIME-Version"] = "1.0"
