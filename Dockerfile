@@ -12,6 +12,5 @@ RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=builder /app/server /usr/local/bin/server
 COPY --from=builder /app/template ./template
-COPY --from=builder /app/.env ./.env
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/server"]
