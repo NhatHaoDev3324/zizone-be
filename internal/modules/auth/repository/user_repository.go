@@ -88,9 +88,12 @@ func (r *userRepository) FindByID(id string) (*model.User, error) {
 
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("email = ?", email).First(&user).Error
+	err := r.db.Where("email = ?", email).Limit(1).Find(&user).Error
 	if err != nil {
 		return nil, err
+	}
+	if user.Email == "" {
+		return nil, gorm.ErrRecordNotFound
 	}
 	return &user, nil
 }
