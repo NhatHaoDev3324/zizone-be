@@ -10,13 +10,15 @@ import (
 var accessJWTSecret = []byte(os.Getenv("ACCESS_JWT_SECRET"))
 
 type AccessJWTClaims struct {
-	ID string `json:"id"`
+	ID   string `json:"id"`
+	Role string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(ID string) (string, error) {
+func GenerateAccessToken(ID string, Role string) (string, error) {
 	accessClaims := &AccessJWTClaims{
-		ID: ID,
+		ID:   ID,
+		Role: Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 30)),

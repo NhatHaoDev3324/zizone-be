@@ -17,6 +17,7 @@ func NewRouter(db *gorm.DB, redis *redis.Client) *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.AuthMiddleware())
 
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"message": "Hello World!"})

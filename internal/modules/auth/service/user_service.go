@@ -111,7 +111,7 @@ func (s *userService) RegisterByGoogle(code string) (string, error) {
 		}
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID.String())
+	token, err := utils.GenerateAccessToken(user.ID.String(), user.Role)
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +136,7 @@ func (s *userService) LoginByEmail(email, password string) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID.String())
+	token, err := utils.GenerateAccessToken(user.ID.String(), user.Role)
 	if err != nil {
 		return "", err
 	}
