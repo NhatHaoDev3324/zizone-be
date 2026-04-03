@@ -217,3 +217,38 @@ func (h *UserHandler) ResetPassword(ctx *gin.Context) {
 
 	response.SuccessNoData(ctx, "Password reset successfully.")
 }
+
+func (h *UserHandler) CreateAccount(ctx *gin.Context) {
+	var input struct {
+		FullName string `json:"full_name" binding:"required"`
+		Email    string `json:"email" binding:"required"`
+		Role     string `json:"role" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	if input.FullName == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Full name is required")
+		return
+	}
+
+	if input.Email == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Email is required")
+		return
+	}
+
+	if input.Role == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Role is required")
+		return
+	}
+
+	if err := h.service.CreateAccount(input.FullName, input.Email, input.Role); err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not register user: "+err.Error())
+		return
+	}
+
+	response.SuccessNoData(ctx, "Registration successful. Please check your email for the password.")
+}

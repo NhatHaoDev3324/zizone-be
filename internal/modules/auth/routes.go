@@ -26,6 +26,12 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 		authGroup.POST("/verify-otp", h.VerifyOTP)
 		authGroup.POST("/forgot-password", h.ForgotPassword)
 		authGroup.POST("/verify-otp-forgot-password", h.VerifyOTPForgotPassword)
-		authGroup.POST("/reset-password", middleware.AuthMiddleware(), h.ResetPassword)
+		authGroup.POST("/reset-password", h.ResetPassword)
 	}
+
+	adminGroup := r.Group("/admin")
+	{
+		adminGroup.POST("/create-account", middleware.RequireAuth(), middleware.RequireRole(constant.RoleAdmin), h.CreateAccount)
+	}
+
 }

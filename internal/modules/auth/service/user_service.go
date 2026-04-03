@@ -21,6 +21,7 @@ type UserService interface {
 	ForgotPassword(email string) error
 	VerifyOTPForgotPassword(email, otp string) (string, error)
 	ResetPassword(userID, newPassword string) error
+	CreateAccount(fullName, email, role string) error
 }
 
 type userService struct {
@@ -194,4 +195,41 @@ func (s *userService) ResetPassword(userID, newPassword string) error {
 	user.Active = true
 
 	return s.repo.Update(user)
+}
+
+func (s *userService) CreateAccount(fullName, email, role string) error {
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+	if user != nil {
+		return errors.New("email already registered")
+	}
+
+	password, err := utils.SendPassword(email, fullName)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return err
+	}
+
+	user = &model.User{
+		ID:       uuid.New(),
+		Email:    email,
+		Password: hashedPassword,
+		FullName: fullName,
+		Avatar:   constant.NoAvatar,
+		Provider: constant.ProviderAdminCreate,
+		Role:     role,
+		Active:   true,
+	}
+
+	if err := s.repo.Create(user); err != nil {
+		return err
+	}
+
+	return err
 }

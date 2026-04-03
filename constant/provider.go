@@ -1,6 +1,7 @@
 package constant
 
 const (
-	ProviderEmail  = "email"
-	ProviderGoogle = "google"
+	ProviderAdminCreate = "admin_create"
+	ProviderEmail       = "email"
+	ProviderGoogle      = "google"
 )
