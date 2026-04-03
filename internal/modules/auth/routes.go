@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/internal/middleware"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/handler"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
@@ -18,7 +19,7 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 
 	authGroup := r.Group("/auth")
 	{
-		authGroup.GET("/profile", middleware.AuthMiddleware(), h.GetProfile)
+		authGroup.GET("/profile", middleware.RequireAuth(), middleware.RequireRole(constant.RoleUser, constant.RoleAdmin), h.GetProfile)
 		authGroup.POST("/register-by-email", h.RegisterByEmail)
 		authGroup.POST("/register-by-google", h.RegisterByGoogle)
 		authGroup.POST("/login-by-email", h.LoginByEmail)

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func ParseJWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		authHeader := ctx.GetHeader("Authorization")
@@ -26,6 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 					ctx.Set("userID", claims.ID)
 					ctx.Set("role", claims.Role)
 				}
+
 			}
 		}
 		ctx.Next()
