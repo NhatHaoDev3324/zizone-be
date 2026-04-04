@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"math/big"
+	"os"
 	"sync"
 	"time"
 
@@ -36,6 +37,7 @@ func GeneratePassword() string {
 }
 
 func SendPassword(email string, name string) (string, error) {
+	frontendURL := os.Getenv("FRONTEND_DOMAIN")
 	password := GeneratePassword()
 
 	go func() {
@@ -58,7 +60,9 @@ func SendPassword(email string, name string) (string, error) {
 		data := struct {
 			Password string
 			Name     string
-		}{Password: password, Name: name}
+			Email    string
+			LoginURL string
+		}{Password: password, Name: name, Email: email, LoginURL: frontendURL}
 
 		if err := passTmpl.Execute(&body, data); err != nil {
 			factory.LogError("Failed to execute password template: " + err.Error())

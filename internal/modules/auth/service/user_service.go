@@ -199,10 +199,7 @@ func (s *userService) ResetPassword(userID, newPassword string) error {
 
 func (s *userService) CreateAccount(fullName, email, role string) error {
 	user, err := s.repo.FindByEmail(email)
-	if err != nil {
-		return err
-	}
-	if user != nil {
+	if err == nil {
 		return errors.New("email already registered")
 	}
 
