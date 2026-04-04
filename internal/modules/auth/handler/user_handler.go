@@ -116,6 +116,17 @@ func (h *UserHandler) RegisterByGoogle(ctx *gin.Context) {
 }
 
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
+	role, exists := ctx.Get("role")
+	if !exists {
+		response.Fail(ctx, http.StatusUnauthorized, "User not found")
+		return
+	}
+	roleStr, ok := role.(string)
+	if !ok {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid role")
+		return
+	}
+
 	userId, exists := ctx.Get("userID")
 	if !exists {
 		response.Fail(ctx, http.StatusUnauthorized, "User not found")
@@ -133,7 +144,7 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessWithData(ctx, "User fetched successfully", user)
+	response.SuccessWithRoleAndData(ctx, "User fetched successfully", roleStr, user)
 }
 
 func (h *UserHandler) ForgotPassword(ctx *gin.Context) {
@@ -251,4 +262,49 @@ func (h *UserHandler) CreateAccount(ctx *gin.Context) {
 	}
 
 	response.SuccessNoData(ctx, "Registration successful. Please check your email for the password.")
+}
+
+func (h *UserHandler) GetListUser(ctx *gin.Context) {
+	var params struct {
+		Page   int    `form:"page"`
+		Limit  int    `form:"limit"`
+		Search string `form:"search"`
+	}
+
+	if params.Page == 0 {
+		params.Page = 1
+	}
+
+	if params.Limit == 0 {
+		params.Limit = 10
+	}
+
+	if err := ctx.ShouldBindQuery(&params); err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	meta, users, err := h.service.GetAllUsers(params.Page, params.Limit, params.Search)
+	if err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not get list user: "+err.Error())
+		return
+	}
+
+	response.SuccessWithMetaAndData(ctx, "Get list user successfully", meta, users)
+}
+
+func (h *UserHandler) DeleteUser(ctx *gin.Context) {
+
+	id := ctx.Param("id")
+	if id == "" {
+		response.Fail(ctx, http.StatusBadRequest, "User ID is required")
+		return
+	}
+
+	if err := h.service.DeleteUser(id); err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not delete user: "+err.Error())
+		return
+	}
+
+	response.SuccessNoData(ctx, "User deleted successfully")
 }

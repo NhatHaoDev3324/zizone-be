@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/NhatHaoDev3324/zizone-be/config"
 	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
+	"github.com/NhatHaoDev3324/zizone-be/tdo"
 	"github.com/NhatHaoDev3324/zizone-be/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -21,7 +23,10 @@ type UserService interface {
 	ForgotPassword(email string) error
 	VerifyOTPForgotPassword(email, otp string) (string, error)
 	ResetPassword(userID, newPassword string) error
+	//admin
 	CreateAccount(fullName, email, role string) error
+	GetAllUsers(page, limit int, search string) (tdo.Meta, []model.User, error)
+	DeleteUser(id string) error
 }
 
 type userService struct {
@@ -229,4 +234,49 @@ func (s *userService) CreateAccount(fullName, email, role string) error {
 	}
 
 	return err
+}
+
+func (s *userService) GetAllUsers(page, limit int, search string) (tdo.Meta, []model.User, error) {
+	users, err := s.repo.FindAll()
+	if err != nil {
+		return tdo.Meta{}, nil, err
+	}
+
+	var result []model.User
+	if search != "" {
+		search = strings.ToLower(search)
+		for _, user := range users {
+			fullName := strings.ToLower(user.FullName)
+			email := strings.ToLower(user.Email)
+
+			if strings.Contains(fullName, search) || strings.Contains(email, search) {
+				result = append(result, user)
+			}
+		}
+	} else {
+		result = users
+	}
+
+	total := len(result)
+	totalPage := (total + limit - 1) / limit
+
+	start := (page - 1) * limit
+	end := start + limit
+	if start >= total {
+		return tdo.NewMetaResponse(total, totalPage, page, limit), []model.User{}, nil
+	}
+	if end > total {
+		end = total
+	}
+
+	return tdo.NewMetaResponse(total, totalPage, page, limit), result[start:end], nil
+}
+
+func (s *userService) DeleteUser(id string) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.Delete(id)
 }

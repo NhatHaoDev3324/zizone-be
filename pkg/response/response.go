@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/NhatHaoDev3324/zizone-be/constant"
+	"github.com/NhatHaoDev3324/zizone-be/tdo"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +28,24 @@ func SuccessNoData(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": message,
+	})
+}
+
+func SuccessWithRoleAndData(ctx *gin.Context, message string, role string, data interface{}) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": message,
+		"role":    role,
+		"data":    data,
+	})
+}
+
+func SuccessWithMetaAndData(ctx *gin.Context, message string, meta tdo.Meta, data interface{}) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": message,
+		"meta":    meta,
+		"data":    data,
 	})
 }
 

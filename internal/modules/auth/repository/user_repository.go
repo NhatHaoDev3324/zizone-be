@@ -17,6 +17,7 @@ type UserRepository interface {
 	FindByID(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
 	Update(user *model.User) error
+	Delete(id string) error
 }
 
 type userRepository struct {
@@ -106,6 +107,20 @@ func (r *userRepository) Update(user *model.User) error {
 
 	ctx := context.Background()
 	userKey := fmt.Sprintf("user:%s", user.ID)
+	r.redis.Del(ctx, userKey)
+	r.redis.Del(ctx, "users:all")
+
+	return nil
+}
+
+func (r *userRepository) Delete(id string) error {
+	err := r.db.Where("id = ?", id).Delete(&model.User{}).Error
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	userKey := fmt.Sprintf("user:%s", id)
 	r.redis.Del(ctx, userKey)
 	r.redis.Del(ctx, "users:all")
 
