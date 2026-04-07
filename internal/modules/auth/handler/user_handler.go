@@ -135,7 +135,7 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessDataInfo(ctx, "User fetched successfully", tdo.NewProfile(user.ID.String(), user.Email, user.FullName, user.Avatar, user.Role, user.Provider, user.CreatedAt.String()))
+	response.SuccessDataInfo(ctx, "User fetched successfully", tdo.NewProfile(user.ID.String(), user.Email, user.FullName, user.Avatar, user.Role, user.Provider, user.CreatedAt.String(), ""))
 }
 
 func (h *UserHandler) ForgotPassword(ctx *gin.Context) {
@@ -332,7 +332,7 @@ func (h *UserHandler) EditName(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessWithData(ctx, "Name edited successfully", tdo.NewProfile("", "", userName, "", "", "", ""))
+	response.SuccessWithData(ctx, "Name edited successfully", tdo.NewProfile("", "", userName, "", "", "", "", ""))
 }
 
 func (h *UserHandler) EditPassword(ctx *gin.Context) {
@@ -404,5 +404,49 @@ func (h *UserHandler) EditAvatar(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessWithData(ctx, "Avatar edited successfully", tdo.NewProfile("", "", "", url, "", "", ""))
+	response.SuccessWithData(ctx, "Avatar edited successfully", tdo.NewProfile("", "", "", url, "", "", "", ""))
+}
+
+func (h *UserHandler) GetDeletedUsers(ctx *gin.Context) {
+	var params struct {
+		Page   int    `form:"page"`
+		Limit  int    `form:"limit"`
+		Search string `form:"search"`
+	}
+
+	if params.Page == 0 {
+		params.Page = 1
+	}
+
+	if params.Limit == 0 {
+		params.Limit = 10
+	}
+
+	if err := ctx.ShouldBindQuery(&params); err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	meta, users, err := h.service.GetDeletedUsers(params.Page, params.Limit, params.Search)
+	if err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not get list deleted user: "+err.Error())
+		return
+	}
+
+	response.SuccessWithMetaAndData(ctx, "Get list deleted user successfully", meta, users)
+}
+
+func (h *UserHandler) RestoreUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		response.Fail(ctx, http.StatusBadRequest, "User ID is required")
+		return
+	}
+
+	if err := h.service.RestoreUser(id); err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not restore user: "+err.Error())
+		return
+	}
+
+	response.SuccessNoData(ctx, "User restored successfully")
 }

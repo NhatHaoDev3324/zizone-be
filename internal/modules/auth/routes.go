@@ -42,8 +42,10 @@ func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
 	adminGroup := r.Group("/admin")
 	adminGroup.Use(middleware.RequireAuth(), middleware.RequireRole(constant.RoleAdmin))
 	{
-		adminGroup.POST("/create-account", h.CreateAccount)
 		adminGroup.GET("/user/list", h.GetListUser)
+		adminGroup.GET("/user/deleted", h.GetDeletedUsers)
+		adminGroup.POST("/create-account", h.CreateAccount)
+		adminGroup.POST("/user/restore/:id", h.RestoreUser)
 		adminGroup.DELETE("/user/delete/:id", h.DeleteUser)
 	}
 

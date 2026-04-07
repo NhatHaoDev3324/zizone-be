@@ -20,6 +20,8 @@ type UserRepository interface {
 	FindByEmail(email string) (*model.User, error)
 	Update(user *model.User) error
 	Delete(id string) error
+	FindAllDeleted() ([]tdo.Profile, error)
+	Restore(id string) error
 }
 
 type userRepository struct {
@@ -137,5 +139,22 @@ func (r *userRepository) Delete(id string) error {
 	r.redis.Del(ctx, userKey)
 	r.redis.Del(ctx, "users:all")
 
+	return nil
+}
+
+func (r *userRepository) FindAllDeleted() ([]tdo.Profile, error) {
+	var profiles []tdo.Profile
+	err := r.db.Unscoped().Model(&model.User{}).Where("deleted_at IS NOT NULL").Find(&profiles).Error
+	return profiles, err
+}
+
+func (r *userRepository) Restore(id string) error {
+	err := r.db.Unscoped().Model(&model.User{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	r.redis.Del(ctx, "users:all")
 	return nil
 }

@@ -33,6 +33,8 @@ type UserService interface {
 	GetAllUsers(page, limit int, search string) (tdo.Meta, []tdo.Profile, error)
 	DeleteUser(id string) error
 	EditAvatar(userID string, file *multipart.FileHeader) (string, error)
+	GetDeletedUsers(page, limit int, search string) (tdo.Meta, []tdo.Profile, error)
+	RestoreUser(id string) error
 }
 
 type userService struct {
@@ -332,4 +334,44 @@ func (s *userService) EditAvatar(userID string, file *multipart.FileHeader) (str
 	user.Avatar = url
 
 	return url, s.repo.Update(user)
+}
+
+func (s *userService) GetDeletedUsers(page, limit int, search string) (tdo.Meta, []tdo.Profile, error) {
+	users, err := s.repo.FindAllDeleted()
+	if err != nil {
+		return tdo.Meta{}, nil, err
+	}
+
+	var result []tdo.Profile
+	if search != "" {
+		search = strings.ToLower(search)
+		for _, profile := range users {
+			fullName := strings.ToLower(profile.FullName)
+			email := strings.ToLower(profile.Email)
+
+			if strings.Contains(fullName, search) || strings.Contains(email, search) {
+				result = append(result, profile)
+			}
+		}
+	} else {
+		result = users
+	}
+
+	total := len(result)
+	totalPage := (total + limit - 1) / limit
+
+	start := (page - 1) * limit
+	end := start + limit
+	if start >= total {
+		return tdo.NewMetaResponse(total, totalPage, page, limit), []tdo.Profile{}, nil
+	}
+	if end > total {
+		end = total
+	}
+
+	return tdo.NewMetaResponse(total, totalPage, page, limit), result[start:end], nil
+}
+
+func (s *userService) RestoreUser(id string) error {
+	return s.repo.Restore(id)
 }

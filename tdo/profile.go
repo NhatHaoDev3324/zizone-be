@@ -8,9 +8,10 @@ type Profile struct {
 	Role      string `json:"role"`
 	Provider  string `json:"provider"`
 	CreatedAt string `json:"created_at"`
+	DeletedAt string `json:"deleted_at"`
 }
 
-func NewProfile(id, email, fullName, avatar, role, provider, createdAt string) Profile {
+func NewProfile(id, email, fullName, avatar, role, provider, createdAt, deletedAt string) Profile {
 	return Profile{
 		ID:        id,
 		Email:     email,
@@ -19,5 +20,6 @@ func NewProfile(id, email, fullName, avatar, role, provider, createdAt string) P
 		Role:      role,
 		Provider:  provider,
 		CreatedAt: createdAt,
+		DeletedAt: deletedAt,
 	}
 }
