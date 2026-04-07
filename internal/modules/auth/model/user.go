@@ -13,10 +13,10 @@ type User struct {
 	Password  string         `gorm:"not null" json:"-"`
 	FullName  string         `json:"full_name"`
 	Avatar    string         `json:"avatar"`
-	Provider  string         `json:"provider"`
-	Role      string         `json:"role"`
+	Provider  string         `json:"-"`
+	Role      string         `json:"-"`
 	Active    bool           `gorm:"default:false" json:"-"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 
+	"mime/multipart"
+
 	"github.com/NhatHaoDev3324/zizone-be/config"
 	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
@@ -23,10 +25,14 @@ type UserService interface {
 	ForgotPassword(email string) error
 	VerifyOTPForgotPassword(email, otp string) (string, error)
 	ResetPassword(userID, newPassword string) error
+	//edit
+	EditName(userID, fullName string) (string, error)
+	EditPassword(userID, oldPassword, newPassword string) error
 	//admin
 	CreateAccount(fullName, email, role string) error
-	GetAllUsers(page, limit int, search string) (tdo.Meta, []model.User, error)
+	GetAllUsers(page, limit int, search string) (tdo.Meta, []tdo.Profile, error)
 	DeleteUser(id string) error
+	EditAvatar(userID string, file *multipart.FileHeader) (string, error)
 }
 
 type userService struct {
@@ -150,7 +156,7 @@ func (s *userService) LoginByEmail(email, password string) (string, error) {
 }
 
 func (s *userService) GetUserByID(id string) (*model.User, error) {
-	return s.repo.FindByID(id)
+	return s.repo.FindByIDNoCache(id)
 }
 
 func (s *userService) ForgotPassword(email string) error {
@@ -186,7 +192,7 @@ func (s *userService) VerifyOTPForgotPassword(email, otp string) (string, error)
 }
 
 func (s *userService) ResetPassword(userID, newPassword string) error {
-	user, err := s.repo.FindByID(userID)
+	user, err := s.repo.FindByIDNoCache(userID)
 	if err != nil {
 		return err
 	}
@@ -236,21 +242,21 @@ func (s *userService) CreateAccount(fullName, email, role string) error {
 	return err
 }
 
-func (s *userService) GetAllUsers(page, limit int, search string) (tdo.Meta, []model.User, error) {
+func (s *userService) GetAllUsers(page, limit int, search string) (tdo.Meta, []tdo.Profile, error) {
 	users, err := s.repo.FindAll()
 	if err != nil {
 		return tdo.Meta{}, nil, err
 	}
 
-	var result []model.User
+	var result []tdo.Profile
 	if search != "" {
 		search = strings.ToLower(search)
-		for _, user := range users {
-			fullName := strings.ToLower(user.FullName)
-			email := strings.ToLower(user.Email)
+		for _, profile := range users {
+			fullName := strings.ToLower(profile.FullName)
+			email := strings.ToLower(profile.Email)
 
 			if strings.Contains(fullName, search) || strings.Contains(email, search) {
-				result = append(result, user)
+				result = append(result, profile)
 			}
 		}
 	} else {
@@ -263,7 +269,7 @@ func (s *userService) GetAllUsers(page, limit int, search string) (tdo.Meta, []m
 	start := (page - 1) * limit
 	end := start + limit
 	if start >= total {
-		return tdo.NewMetaResponse(total, totalPage, page, limit), []model.User{}, nil
+		return tdo.NewMetaResponse(total, totalPage, page, limit), []tdo.Profile{}, nil
 	}
 	if end > total {
 		end = total
@@ -279,4 +285,51 @@ func (s *userService) DeleteUser(id string) error {
 	}
 
 	return s.repo.Delete(id)
+}
+
+func (s *userService) EditName(userID, fullName string) (string, error) {
+	user, err := s.repo.FindByIDNoCache(userID)
+	if err != nil {
+		return "", err
+	}
+
+	user.FullName = fullName
+
+	return user.FullName, s.repo.Update(user)
+}
+
+func (s *userService) EditPassword(userID, oldPassword, newPassword string) error {
+	user, err := s.repo.FindByIDNoCache(userID)
+	if err != nil {
+		return err
+	}
+
+	if !utils.CheckPasswordHash(oldPassword, user.Password) {
+		return errors.New("invalid old password")
+	}
+
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	user.Password = hashedPassword
+
+	return s.repo.Update(user)
+}
+
+func (s *userService) EditAvatar(userID string, file *multipart.FileHeader) (string, error) {
+	user, err := s.repo.FindByIDNoCache(userID)
+	if err != nil {
+		return "", err
+	}
+
+	url, err := utils.UploadImage(file)
+	if err != nil {
+		return "", err
+	}
+
+	user.Avatar = url
+
+	return url, s.repo.Update(user)
 }

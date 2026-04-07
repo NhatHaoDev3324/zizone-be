@@ -31,11 +31,10 @@ func SuccessNoData(ctx *gin.Context, message string) {
 	})
 }
 
-func SuccessWithRoleAndData(ctx *gin.Context, message string, role string, data interface{}) {
+func SuccessDataInfo(ctx *gin.Context, message string, data tdo.Profile) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": message,
-		"role":    role,
 		"data":    data,
 	})
 }

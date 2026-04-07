@@ -5,6 +5,7 @@ import (
 
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/service"
 	"github.com/NhatHaoDev3324/zizone-be/pkg/response"
+	"github.com/NhatHaoDev3324/zizone-be/tdo"
 
 	"github.com/gin-gonic/gin"
 )
@@ -116,16 +117,6 @@ func (h *UserHandler) RegisterByGoogle(ctx *gin.Context) {
 }
 
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
-	role, exists := ctx.Get("role")
-	if !exists {
-		response.Fail(ctx, http.StatusUnauthorized, "User not found")
-		return
-	}
-	roleStr, ok := role.(string)
-	if !ok {
-		response.Fail(ctx, http.StatusBadRequest, "Invalid role")
-		return
-	}
 
 	userId, exists := ctx.Get("userID")
 	if !exists {
@@ -144,7 +135,7 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessWithRoleAndData(ctx, "User fetched successfully", roleStr, user)
+	response.SuccessDataInfo(ctx, "User fetched successfully", tdo.NewProfile(user.ID.String(), user.Email, user.FullName, user.Avatar, user.Role, user.Provider, user.CreatedAt.String()))
 }
 
 func (h *UserHandler) ForgotPassword(ctx *gin.Context) {
@@ -307,4 +298,111 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	}
 
 	response.SuccessNoData(ctx, "User deleted successfully")
+}
+
+func (h *UserHandler) EditName(ctx *gin.Context) {
+	var input struct {
+		FullName string `json:"full_name" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	if input.FullName == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Full name is required")
+		return
+	}
+
+	userId, exists := ctx.Get("userID")
+	if !exists {
+		response.Fail(ctx, http.StatusUnauthorized, "User not found")
+		return
+	}
+	userID, ok := userId.(string)
+	if !ok {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	userName, err := h.service.EditName(userID, input.FullName)
+	if err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not edit name: "+err.Error())
+		return
+	}
+
+	response.SuccessWithData(ctx, "Name edited successfully", tdo.NewProfile("", "", userName, "", "", "", ""))
+}
+
+func (h *UserHandler) EditPassword(ctx *gin.Context) {
+	var input struct {
+		OldPassword string `json:"old_password" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	if input.OldPassword == "" {
+		response.Fail(ctx, http.StatusBadRequest, "Old password is required")
+		return
+	}
+
+	if input.NewPassword == "" {
+		response.Fail(ctx, http.StatusBadRequest, "New password is required")
+		return
+	}
+
+	if len(input.NewPassword) < 6 {
+		response.Fail(ctx, http.StatusBadRequest, "Password must be at least 6 characters long")
+		return
+	}
+
+	userId, exists := ctx.Get("userID")
+	if !exists {
+		response.Fail(ctx, http.StatusUnauthorized, "User not found")
+		return
+	}
+	userID, ok := userId.(string)
+	if !ok {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	if err := h.service.EditPassword(userID, input.OldPassword, input.NewPassword); err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not edit password: "+err.Error())
+		return
+	}
+
+	response.SuccessNoData(ctx, "Password edited successfully")
+}
+
+func (h *UserHandler) EditAvatar(ctx *gin.Context) {
+	file, err := ctx.FormFile("avatar")
+	if err != nil {
+		response.Fail(ctx, http.StatusBadRequest, "Avatar file is required")
+		return
+	}
+
+	userId, exists := ctx.Get("userID")
+	if !exists {
+		response.Fail(ctx, http.StatusUnauthorized, "User not found")
+		return
+	}
+	userID, ok := userId.(string)
+	if !ok {
+		response.Fail(ctx, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	url, err := h.service.EditAvatar(userID, file)
+	if err != nil {
+		response.Fail(ctx, http.StatusInternalServerError, "Could not edit avatar: "+err.Error())
+		return
+	}
+
+	response.SuccessWithData(ctx, "Avatar edited successfully", tdo.NewProfile("", "", "", url, "", "", ""))
 }

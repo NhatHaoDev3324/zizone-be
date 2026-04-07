@@ -7,14 +7,16 @@ import (
 	"time"
 
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
+	"github.com/NhatHaoDev3324/zizone-be/tdo"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	Create(user *model.User) error
-	FindAll() ([]model.User, error)
+	FindAll() ([]tdo.Profile, error)
 	FindByID(id string) (*model.User, error)
+	FindByIDNoCache(id string) (*model.User, error)
 	FindByEmail(email string) (*model.User, error)
 	Update(user *model.User) error
 	Delete(id string) error
@@ -37,7 +39,7 @@ func (r *userRepository) Create(user *model.User) error {
 
 	ctx := context.Background()
 
-	userKey := fmt.Sprintf("user:%d", user.ID)
+	userKey := fmt.Sprintf("user:%s", user.ID.String())
 	userData, _ := json.Marshal(user)
 	r.redis.Set(ctx, userKey, userData, 30*time.Minute)
 
@@ -46,24 +48,24 @@ func (r *userRepository) Create(user *model.User) error {
 	return nil
 }
 
-func (r *userRepository) FindAll() ([]model.User, error) {
+func (r *userRepository) FindAll() ([]tdo.Profile, error) {
 	ctx := context.Background()
-	var users []model.User
+	var profiles []tdo.Profile
 
 	cachedUsers, err := r.redis.Get(ctx, "users:all").Result()
 	if err == nil {
-		if json.Unmarshal([]byte(cachedUsers), &users) == nil {
-			return users, nil
+		if json.Unmarshal([]byte(cachedUsers), &profiles) == nil {
+			return profiles, nil
 		}
 	}
 
-	err = r.db.Find(&users).Error
+	err = r.db.Model(&model.User{}).Find(&profiles).Error
 	if err == nil {
-		usersData, _ := json.Marshal(users)
+		usersData, _ := json.Marshal(profiles)
 		r.redis.Set(ctx, "users:all", usersData, 30*time.Minute)
 	}
 
-	return users, err
+	return profiles, err
 }
 
 func (r *userRepository) FindByID(id string) (*model.User, error) {
@@ -82,6 +84,17 @@ func (r *userRepository) FindByID(id string) (*model.User, error) {
 	if err == nil {
 		userData, _ := json.Marshal(user)
 		r.redis.Set(ctx, userKey, userData, 30*time.Minute)
+	}
+
+	return &user, err
+}
+
+func (r *userRepository) FindByIDNoCache(id string) (*model.User, error) {
+	var user model.User
+
+	err := r.db.Where("id = ?", id).First(&user).Error
+	if err == nil {
+		return &user, nil
 	}
 
 	return &user, err
