@@ -73,6 +73,8 @@ jobs:
               -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
               -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
               -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
+              -e CLOUDINARY_URL="${{ secrets.CLOUDINARY_URL }}" \
+              -e FRONTEND_DOMAIN="${{ secrets.FRONTEND_DOMAIN }}" \
               "${{ env.IMAGE_NAME }}:${{ github.run_number }}"
 
             docker image prune -f
