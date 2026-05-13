@@ -5,6 +5,7 @@ import (
 
 	"github.com/NhatHaoDev3324/zizone-be/internal/middleware"
 	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth"
+	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -26,6 +27,7 @@ func NewRouter(db *gorm.DB, redis *redis.Client) *gin.Engine {
 	api := r.Group("/api/v1")
 	{
 		auth.AuthRoutes(api, db, redis)
+		word.WordRoutes(api, db, redis)
 	}
 
 	return r

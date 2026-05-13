@@ -17,4 +17,5 @@ const (
 	StatusForbidden    FailStatus = 403
 	StatusNotFound     FailStatus = 404
 	StatusConflict     FailStatus = 409
+	StatusInternalServerError FailStatus = 500
 )
