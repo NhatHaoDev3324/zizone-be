@@ -12,10 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Config struct {
-	DB *gorm.DB
-}
-
 func ConnectDB() *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
