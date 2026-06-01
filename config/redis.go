@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -28,9 +28,9 @@ func ConnectRedis() *redis.Client {
 
 	_, err := Redis.Ping(Ctx).Result()
 	if err != nil {
-		factory.LogError("Failed to connect to Redis: " + err.Error())
+		log.LogError("Failed to connect to Redis: " + err.Error())
 	}
 
-	factory.LogSuccess("Connected to Redis successfully!")
+	log.LogSuccess("Connected to Redis successfully!")
 	return Redis
 }

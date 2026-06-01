@@ -5,13 +5,12 @@ import (
 	"crypto/rand"
 	"fmt"
 	"html/template"
-	"log"
 	"math/big"
 	"os"
 	"sync"
 	"time"
 
-	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 )
 
 var (
@@ -28,7 +27,7 @@ func GeneratePassword() string {
 	for i := range b {
 		n, err := rand.Int(randReader, big.NewInt(int64(len(charset))))
 		if err != nil {
-			log.Printf("⚠️ Crypto rand failed: %v", err)
+			log.LogError("Crypto rand failed: " + err.Error())
 			return fmt.Sprintf("%012d", time.Now().UnixNano()%1000000000000)
 		}
 		b[i] = charset[n.Int64()]
@@ -47,12 +46,12 @@ func SendPassword(email string, name string) (string, error) {
 			var err error
 			passTmpl, err = template.ParseFiles("template/sendPassword.html")
 			if err != nil {
-				factory.LogError("Failed to parse password email template: " + err.Error())
+				log.LogError("Failed to parse password email template: " + err.Error())
 			}
 		})
 
 		if passTmpl == nil {
-			factory.LogError("Password email template is not initialized")
+			log.LogError("Password email template is not initialized")
 			return
 		}
 
@@ -65,7 +64,7 @@ func SendPassword(email string, name string) (string, error) {
 		}{Password: password, Name: name, Email: email, LoginURL: frontendURL}
 
 		if err := passTmpl.Execute(&body, data); err != nil {
-			factory.LogError("Failed to execute password template: " + err.Error())
+			log.LogError("Failed to execute password template: " + err.Error())
 			return
 		}
 

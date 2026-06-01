@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 )
 
 var MailSvc *MailService
@@ -60,27 +60,27 @@ func (m *MailService) worker() {
 		if client == nil {
 			client, err = m.createClient()
 			if err != nil {
-				factory.LogError("SMTP Reconnection failed: " + err.Error())
+				log.LogError("SMTP Reconnection failed: " + err.Error())
 				time.Sleep(2 * time.Second)
 				continue
 			}
 		}
 
 		if err := m.send(client, job); err != nil {
-			factory.LogError("Send mail failed: " + err.Error())
+			log.LogError("Send mail failed: " + err.Error())
 			client.Close()
 			client = nil
 
 			client, err = m.createClient()
 			if err == nil {
 				if err := m.send(client, job); err != nil {
-					factory.LogError("Persistent failure sending to: " + strings.Join(job.To, ","))
+					log.LogError("Persistent failure sending to: " + strings.Join(job.To, ","))
 				} else {
-					factory.LogSuccess("Sent mail to (retry): " + strings.Join(job.To, ","))
+					log.LogSuccess("Sent mail to (retry): " + strings.Join(job.To, ","))
 				}
 			}
 		} else {
-			factory.LogSuccess("Sent mail to: " + strings.Join(job.To, ","))
+			log.LogSuccess("Sent mail to: " + strings.Join(job.To, ","))
 		}
 	}
 
@@ -168,7 +168,7 @@ func SendAsync(subject, body string, to []string) {
 	if MailSvc != nil {
 		MailSvc.SendAsync(subject, body, to)
 	} else {
-		factory.LogError("MailService not initialized")
+		log.LogError("MailService not initialized")
 	}
 }
 

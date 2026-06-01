@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/NhatHaoDev3324/zizone-be/config"
-	"github.com/NhatHaoDev3324/zizone-be/factory"
 	"github.com/NhatHaoDev3324/zizone-be/internal/router"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 	"github.com/NhatHaoDev3324/zizone-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,10 +12,10 @@ import (
 func main() {
 
 	if err := godotenv.Load(".env"); err != nil {
-		factory.LogInfo(".env not found, fallback to .env.local")
+		log.LogInfo(".env not found, fallback to .env.local")
 		godotenv.Load(".env.local")
 	} else {
-		factory.LogSuccess("Environment loaded from .env")
+		log.LogSuccess("Environment loaded from .env")
 	}
 
 	db := config.ConnectDB()
@@ -29,8 +29,8 @@ func main() {
 	r := router.NewRouter(db, redis)
 	r.SetTrustedProxies([]string{"nil"})
 
-	factory.LogSuccess("Server is running at http://localhost:8080")
+	log.LogSuccess("Server is running at http://localhost:8080")
 	if err := r.Run(":8080"); err != nil {
-		factory.LogError("Server failed to start: " + err.Error())
+		log.LogError("Server failed to start: " + err.Error())
 	}
 }

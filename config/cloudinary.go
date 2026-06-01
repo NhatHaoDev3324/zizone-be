@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 	"github.com/cloudinary/cloudinary-go/v2"
 )
 
@@ -11,9 +11,9 @@ func InitCloudinary() {
 
 	cld, err := cloudinary.New()
 	if err != nil {
-		factory.LogError("Failed to connect to Cloudinary: " + err.Error())
+		log.LogError("Failed to connect to Cloudinary: " + err.Error())
 	}
 
 	Cloud = cld
-	factory.LogSuccess("Connected to Cloudinary successfully!")
+	log.LogSuccess("Connected to Cloudinary successfully!")
 }

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/NhatHaoDev3324/zizone-be/factory"
 	authModel "github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
 	wordModel "github.com/NhatHaoDev3324/zizone-be/internal/modules/word/model"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -28,11 +28,11 @@ func ConnectDB() *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		factory.LogError("Failed to connect to database: " + err.Error())
+		log.LogError("Failed to connect to database: " + err.Error())
 	}
 
 	db.AutoMigrate(&authModel.User{}, &wordModel.Word{})
 
-	factory.LogSuccess("Connected to PostgreSQL successfully!")
+	log.LogSuccess("Connected to PostgreSQL successfully!")
 	return db
 }

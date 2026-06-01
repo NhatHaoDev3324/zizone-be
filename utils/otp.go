@@ -6,13 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"math/big"
 	"sync"
 	"time"
 
 	"github.com/NhatHaoDev3324/zizone-be/config"
-	"github.com/NhatHaoDev3324/zizone-be/factory"
+	"github.com/NhatHaoDev3324/zizone-be/pkg/log"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -34,7 +33,7 @@ func GenerateOTP() string {
 	for i := range b {
 		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
 		if err != nil {
-			log.Printf("⚠️ Crypto rand failed: %v", err)
+			log.LogError("Crypto rand failed: " + err.Error())
 			return fmt.Sprintf("%06d", time.Now().UnixNano()%1000000)
 		}
 		b[i] = charset[n.Int64()]
@@ -70,12 +69,12 @@ func SendOTP(email string, name string) (string, error) {
 			var err error
 			otpTmpl, err = template.ParseFiles("template/verifyEmail.html")
 			if err != nil {
-				factory.LogError("Failed to parse email template: " + err.Error())
+				log.LogError("Failed to parse email template: " + err.Error())
 			}
 		})
 
 		if otpTmpl == nil {
-			factory.LogError("Email template is not initialized")
+			log.LogError("Email template is not initialized")
 			return
 		}
 
@@ -85,7 +84,7 @@ func SendOTP(email string, name string) (string, error) {
 			Name string
 		}{OTP: otp, Name: name}
 		if err := otpTmpl.Execute(&body, data); err != nil {
-			factory.LogError("Failed to execute template: " + err.Error())
+			log.LogError("Failed to execute template: " + err.Error())
 			return
 		}
 
