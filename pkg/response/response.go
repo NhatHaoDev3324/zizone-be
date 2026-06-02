@@ -3,7 +3,6 @@ package response
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/tdo"
 	"github.com/gin-gonic/gin"
 )
@@ -48,8 +47,8 @@ func SuccessWithMetaAndData(ctx *gin.Context, message string, meta tdo.Meta, dat
 	})
 }
 
-func Fail(ctx *gin.Context, status constant.FailStatus, message string) {
-	ctx.JSON(int(status), gin.H{
+func Fail(ctx *gin.Context, status int, message string) {
+	ctx.JSON(status, gin.H{
 		"success": false,
 		"message": message,
 	})
