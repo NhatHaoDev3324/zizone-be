@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	if err := godotenv.Load(".env"); err != nil {
 		log.LogInfo(".env not found, fallback to .env.local")
 		godotenv.Load(".env.local")
