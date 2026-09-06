@@ -1,20 +1,19 @@
-package handler
+package auth
 
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/service"
+	"github.com/NhatHaoDev3324/zizone-be/internal/tdo"
 	"github.com/NhatHaoDev3324/zizone-be/pkg/response"
-	"github.com/NhatHaoDev3324/zizone-be/tdo"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	service service.UserService
+	service UserService
 }
 
-func NewUserHandler(service service.UserService) *UserHandler {
+func Handler(service UserService) *UserHandler {
 	return &UserHandler{service}
 }
 

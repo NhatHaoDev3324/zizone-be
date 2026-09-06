@@ -1,30 +1,28 @@
-package service
+package word
 
 import (
 	"encoding/json"
 	"strings"
 
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/dto"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/model"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/repository"
-	"github.com/NhatHaoDev3324/zizone-be/tdo"
+	"github.com/NhatHaoDev3324/zizone-be/internal/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/tdo"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
 
 type WordService interface {
 	GetListWord(page, limit int, search string) (tdo.Meta, []model.Word, error)
-	CreateWord(req *dto.CreateWordRequest) error
+	CreateWord(req *CreateWordRequest) error
 	GetWordByID(id string) (*model.Word, error)
-	UpdateWord(req *dto.UpdateWordRequest) error
+	UpdateWord(req *UpdateWordRequest) error
 	DeleteWord(id string) error
 }
 
 type wordService struct {
-	repo repository.WordRepository
+	repo WordRepository
 }
 
-func NewWordService(repo repository.WordRepository) WordService {
+func NewWordService(repo WordRepository) WordService {
 	return &wordService{repo}
 }
 
@@ -66,7 +64,7 @@ func (s *wordService) GetListWord(page, limit int, search string) (tdo.Meta, []m
 	return tdo.NewMetaResponse(total, totalPage, page, limit), result[start:end], nil
 }
 
-func (s *wordService) CreateWord(req *dto.CreateWordRequest) error {
+func (s *wordService) CreateWord(req *CreateWordRequest) error {
 	charactersData, err := json.Marshal(req.Characters)
 	if err != nil {
 		return err
@@ -95,7 +93,7 @@ func (s *wordService) GetWordByID(id string) (*model.Word, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s *wordService) UpdateWord(req *dto.UpdateWordRequest) error {
+func (s *wordService) UpdateWord(req *UpdateWordRequest) error {
 	uID, err := uuid.Parse(req.ID)
 	if err != nil {
 		return err

@@ -19,7 +19,7 @@ func main() {
 
 	db := config.ConnectDB()
 	redis := config.ConnectRedis()
-	config.InitCloudinary()
+	config.InitR2()
 
 	utils.NewMailService(5)
 

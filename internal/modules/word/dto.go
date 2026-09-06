@@ -1,4 +1,4 @@
-package dto
+package word
 
 type CreateWordRequest struct {
 	Word       string      `json:"word" binding:"required"`

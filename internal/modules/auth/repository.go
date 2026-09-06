@@ -1,4 +1,4 @@
-package repository
+package auth
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
-	"github.com/NhatHaoDev3324/zizone-be/tdo"
+	"github.com/NhatHaoDev3324/zizone-be/internal/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/tdo"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -29,7 +29,7 @@ type userRepository struct {
 	redis *redis.Client
 }
 
-func NewUserRepository(db *gorm.DB, redis *redis.Client) UserRepository {
+func Repository(db *gorm.DB, redis *redis.Client) UserRepository {
 	return &userRepository{db, redis}
 }
 

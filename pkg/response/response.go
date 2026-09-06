@@ -3,7 +3,7 @@ package response
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/zizone-be/tdo"
+	"github.com/NhatHaoDev3324/zizone-be/internal/tdo"
 	"github.com/gin-gonic/gin"
 )
 

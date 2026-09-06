@@ -1,19 +1,17 @@
-package handler
+package word
 
 import (
 	"net/http"
 
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/dto"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/service"
 	"github.com/NhatHaoDev3324/zizone-be/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type wordHandler struct {
-	service service.WordService
+	service WordService
 }
 
-func NewWordHandler(service service.WordService) *wordHandler {
+func NewWordHandler(service WordService) *wordHandler {
 	return &wordHandler{service}
 }
 
@@ -47,7 +45,7 @@ func (h *wordHandler) GetListWord(ctx *gin.Context) {
 }
 
 func (h *wordHandler) CreateWord(ctx *gin.Context) {
-	var req dto.CreateWordRequest
+	var req CreateWordRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.Fail(ctx, http.StatusBadRequest, "Invalid request")
@@ -74,7 +72,7 @@ func (h *wordHandler) GetWordByID(ctx *gin.Context) {
 }
 
 func (h *wordHandler) UpdateWord(ctx *gin.Context) {
-	var req dto.UpdateWordRequest
+	var req UpdateWordRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.Fail(ctx, http.StatusBadRequest, "Invalid request")

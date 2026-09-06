@@ -1,11 +1,11 @@
-package repository
+package word
 
 import (
 	"context"
 	"encoding/json"
 	"time"
 
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/word/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/model"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

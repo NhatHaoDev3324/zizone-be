@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"errors"
@@ -8,9 +8,8 @@ import (
 
 	"github.com/NhatHaoDev3324/zizone-be/config"
 	"github.com/NhatHaoDev3324/zizone-be/constant"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/model"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
-	"github.com/NhatHaoDev3324/zizone-be/tdo"
+	"github.com/NhatHaoDev3324/zizone-be/internal/model"
+	"github.com/NhatHaoDev3324/zizone-be/internal/tdo"
 	"github.com/NhatHaoDev3324/zizone-be/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -38,10 +37,10 @@ type UserService interface {
 }
 
 type userService struct {
-	repo repository.UserRepository
+	repo UserRepository
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
+func Service(repo UserRepository) UserService {
 	return &userService{repo}
 }
 
@@ -326,7 +325,7 @@ func (s *userService) EditAvatar(userID string, file *multipart.FileHeader) (str
 		return "", err
 	}
 
-	url, err := utils.UploadImage(file)
+	url, err := utils.UploadR2Image(file, user.ID)
 	if err != nil {
 		return "", err
 	}

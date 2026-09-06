@@ -3,19 +3,15 @@ package auth
 import (
 	"github.com/NhatHaoDev3324/zizone-be/constant"
 	"github.com/NhatHaoDev3324/zizone-be/internal/middleware"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/handler"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/repository"
-	"github.com/NhatHaoDev3324/zizone-be/internal/modules/auth/service"
-
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 func AuthRoutes(r *gin.RouterGroup, db *gorm.DB, redis *redis.Client) {
-	repo := repository.NewUserRepository(db, redis)
-	svc := service.NewUserService(repo)
-	h := handler.NewUserHandler(svc)
+	repo := Repository(db, redis)
+	svc := Service(repo)
+	h := Handler(svc)
 
 	authGroup := r.Group("/auth")
 	{
